@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "789834919437",
+    "project_id": "random-itinerary",
+    "storage_bucket": "random-itinerary.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789834919437:android:0bf8ecc052749f62016f44",
+        "android_client_info": {
+          "package_name": "com.example.random_iternerary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "789834919437-nvos5v0tuun8asja28fnkandvuom53sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjFunE1c8u_W2AbIeJd6E1jvG1QxHsDeI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789834919437-nvos5v0tuun8asja28fnkandvuom53sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
