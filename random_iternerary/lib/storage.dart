@@ -1,9 +1,10 @@
-import 'dart:async';
+import'dart:async';
 import 'package:flutter/foundation.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+
 
 class UserStorage {
   bool _initialized = false;
@@ -18,15 +19,15 @@ Future<void> initializeDefault() async {
 bool get isInitialized => _initialized;
 
 
-Future<void> writeUserInfo(String name, bool metric, int age) async {
+Future<void> writeUserInfo(String email, String password, String username) async {
     if(!isInitialized){
       await initializeDefault();
     }
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    firestore.collection('users').doc('cins467').set({
-      'name': name,
-      'metric': metric,
-      'age': age,
+    firestore.collection('users').doc('6A3nN0DyOsanSsWcSl7M').set({
+      'name': username,
+      'pwd': password,
+      'email': email,
     }).then((value){
       if (kDebugMode) {
         print('user updated successfully');
@@ -45,7 +46,7 @@ Future<String> readUsername() async {
     }
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     DocumentSnapshot ds = await firestore.collection('users')
-      .doc('cins467')
+      .doc('6A3nN0DyOsanSsWcSl7M')
       .get();
     if(ds.data() != null){
       Map<String, dynamic> data = (ds.data() as Map<String, dynamic>);
@@ -58,4 +59,4 @@ Future<String> readUsername() async {
 
 
 
-}
+}//END USER STORAGE
