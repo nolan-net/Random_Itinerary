@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'storage.dart';
-
 class SignInPage2 extends StatelessWidget {
   const SignInPage2({Key? key}) : super(key: key);
 
@@ -15,7 +13,6 @@ class SignInPage2 extends StatelessWidget {
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      _Logo(),
                       _FormContent(),
                     ],
                   )
@@ -24,42 +21,12 @@ class SignInPage2 extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 800),
                     child: Row(
                       children: const [
-                        Expanded(child: _Logo()),
                         Expanded(
                           child: Center(child: _FormContent()),
                         ),
                       ],
                     ),
                   )));
-  }
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FlutterLogo(size: isSmallScreen ? 100 : 200),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "Welcome to Flutter!",
-            textAlign: TextAlign.center,
-            style: isSmallScreen
-                ? Theme.of(context).textTheme.headline5
-                : Theme.of(context)
-                    .textTheme
-                    .headline4
-                    ?.copyWith(color: Colors.black),
-          ),
-        )
-      ],
-    );
   }
 }
 
@@ -87,25 +54,10 @@ class __FormContentState extends State<_FormContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
-              validator: (value) {
-                // add email validation
-                if (value == null || value.isEmpty) {
-                  return 'Please enter some text';
-                }
-
-                bool emailValid = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                    .hasMatch(value);
-                if (!emailValid) {
-                  return 'Please enter a valid email';
-                }
-
-                return null;
-              },
               decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.email_outlined),
+                labelText: 'Username',
+                hintText: 'Username',
+                prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
             ),

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'storage.dart';
-
-
 class createAccount extends StatelessWidget {
   const createAccount({Key? key}) : super(key: key);
 
@@ -84,6 +81,33 @@ class __FormContentState extends State<_FormContent> {
             _gap(),
             TextFormField(
               validator: (value) {
+                // add email validation
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some text';
+                }
+
+                bool hasSpecialCharacters = RegExp(r'[`"@.,#%^&*()+]').hasMatch(value);
+
+                if (hasSpecialCharacters) {
+                  return 'Please enter a valid username';
+                }
+
+                if (value.length > 12) {
+                  return 'Username must not be longer than 12 characters';
+                }
+
+                return null;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                hintText: 'Enter your Username',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            _gap(),
+            TextFormField(
+              validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter some text';
                 }
@@ -146,6 +170,7 @@ class __FormContentState extends State<_FormContent> {
                 },
               ),  
             ),
+            _gap(),
             Tooltip(
               message: 'Back!',
               child: FloatingActionButton(
