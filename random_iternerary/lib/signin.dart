@@ -175,6 +175,13 @@ class __FormContentState extends State<_FormContent> {
               ),
               
             ),
+            _gap(),
+            FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/third');
+              },
+              child: const Icon(Icons.fiber_new),
+            ),
           ],
         ),
       ),

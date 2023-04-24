@@ -4,7 +4,7 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'signin.dart';
-import 'signin.dart';
+import 'createaccount.dart';
 
 
 Future<void> main() async {
@@ -15,6 +15,7 @@ Future<void> main() async {
 
  runApp(const MyApp());
 }
+
 
 
 class MyApp extends StatelessWidget {
@@ -33,43 +34,75 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const SignInPage2(),
         '/second' : (context) => const MyHomePage(),
+        '/third' :(context) => const createAccount(),
       }
 
-      //home: const MyHomePage(title: 'Random Itinerary'),  
+    
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
-
+  
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+  
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
+  int _selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OUR EPIC APP'),
+        title: const Text('Random Itinerary'),
+        automaticallyImplyLeading: false,
+        leading:IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: (){
+            Navigator.pop(context);
+          },
+        )
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-            children: 
-          [ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Log out!'),
-
-          ),
-        ],
+        child: Text("Selected Page: ${_navBarItems[_selectedIndex].label}")),
+      bottomNavigationBar: NavigationBar(
+        animationDuration: const Duration(seconds: 1),
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        destinations: _navBarItems,
       ),
-     )
     );
   }
 }
+
+const _navBarItems = [
+  NavigationDestination(
+    icon: Icon(Icons.map_outlined),
+    selectedIcon: Icon(Icons.map),
+    label: 'Map',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.bookmark_border_outlined),
+    selectedIcon: Icon(Icons.bookmark_rounded),
+    label: 'BookMarks',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.format_list_bulleted),
+    selectedIcon: Icon(Icons.format_list_bulleted_outlined),
+    label: 'Create List',
+  ),
+  NavigationDestination(
+    icon: Icon(Icons.person_outline_rounded),
+    selectedIcon: Icon(Icons.person_rounded),
+    label: 'Profile',
+  ),
+];
+
