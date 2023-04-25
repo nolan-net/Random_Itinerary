@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:random_iternerary/storage.dart';
 
 class SignInPage2 extends StatelessWidget {
   const SignInPage2({Key? key}) : super(key: key);
@@ -73,6 +73,8 @@ class _FormContent extends StatefulWidget {
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  final storage = UserStorage();
+
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -86,7 +88,7 @@ class __FormContentState extends State<_FormContent> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField(
+            TextFormField (
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -99,8 +101,8 @@ class __FormContentState extends State<_FormContent> {
                 if (!emailValid) {
                   return 'Please enter a valid email';
                 }
-
-                return null;
+                //COULD PUT DB EMAIL CHECKING HERE
+               
               },
               decoration: const InputDecoration(
                 labelText: 'Email',
@@ -169,6 +171,8 @@ class __FormContentState extends State<_FormContent> {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
+                    //Essentially we want to take the input validated inputs, specifically the email and have it compared to values in the db, if found allows access to the home page
+                    //otherwise throw error and try again.
                     Navigator.pushNamed(context, '/second');
                   }
                 },

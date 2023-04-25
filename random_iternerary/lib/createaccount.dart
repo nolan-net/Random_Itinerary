@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'storage.dart';
+import 'package:random_iternerary/storage.dart';
 
 
 class createAccount extends StatelessWidget {
@@ -44,10 +44,16 @@ class _FormContent extends StatefulWidget {
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  final storage = UserStorage();
+  
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  
+  String? _username;
+  String? _email;
+  String? _password;
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -58,6 +64,26 @@ class __FormContentState extends State<_FormContent> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            //USERNAME
+            TextFormField(
+                validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some text';
+                }
+                return null;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                hintText: 'Enter your Username',
+                prefixIcon: Icon(Icons.person_outlined),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value){
+                _username = value;
+              },
+            ),
+            _gap(),
+            //EMAIL
             TextFormField(
               validator: (value) {
                 // add email validation
@@ -71,7 +97,6 @@ class __FormContentState extends State<_FormContent> {
                 if (!emailValid) {
                   return 'Please enter a valid email';
                 }
-
                 return null;
               },
               decoration: const InputDecoration(
@@ -80,8 +105,13 @@ class __FormContentState extends State<_FormContent> {
                 prefixIcon: Icon(Icons.email_outlined),
                 border: OutlineInputBorder(),
               ),
+              onChanged: (value){
+                  _email = value;
+                },
+
             ),
             _gap(),
+            //PASSWORD
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -109,20 +139,9 @@ class __FormContentState extends State<_FormContent> {
                       });
                     },
                   )),
-            ),
-            _gap(),
-            CheckboxListTile(
-              value: _rememberMe,
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  _rememberMe = value;
-                });
-              },
-              title: const Text('Remember me'),
-              controlAffinity: ListTileControlAffinity.leading,
-              dense: true,
-              contentPadding: const EdgeInsets.all(0),
+                  onChanged:(value){
+                    _password = value;
+                  }
             ),
             _gap(),
             SizedBox(
@@ -135,14 +154,12 @@ class __FormContentState extends State<_FormContent> {
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Sign in',
+                    'Create Account',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    Navigator.pushNamed(context, '/');
-                  }
+                    storage.writeUserInfo(_email,_password,_username);
                 },
               ),  
             ),
