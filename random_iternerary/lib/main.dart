@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
 
 import 'signin.dart';
 import 'createaccount.dart';
+
+
+
 
 
 Future<void> main() async {
@@ -32,8 +36,11 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
+        //Signin.dart
         '/': (context) => const SignInPage2(),
+        //main.dart
         '/second' : (context) => const MyHomePage(),
+        //createaccount.dart
         '/third' :(context) => const createAccount(),
       }
 
@@ -52,6 +59,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+
 
   @override
   Widget build(BuildContext context) {

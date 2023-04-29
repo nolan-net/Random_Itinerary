@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:random_iternerary/storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignInPage2 extends StatelessWidget {
   const SignInPage2({Key? key}) : super(key: key);
@@ -73,10 +74,26 @@ class _FormContent extends StatefulWidget {
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final storage = UserStorage();
-
+  final TextEditingController _emailController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  
+  
+Future<bool> emailExists(String? email) async {
+  final userQuery = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+
+  return userQuery.docs.isNotEmpty;
+
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +106,7 @@ class __FormContentState extends State<_FormContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField (
+              controller: _emailController,
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -101,8 +119,7 @@ class __FormContentState extends State<_FormContent> {
                 if (!emailValid) {
                   return 'Please enter a valid email';
                 }
-                //COULD PUT DB EMAIL CHECKING HERE
-               
+
               },
               decoration: const InputDecoration(
                 labelText: 'Email',
@@ -169,11 +186,16 @@ class __FormContentState extends State<_FormContent> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                    //Essentially we want to take the input validated inputs, specifically the email and have it compared to values in the db, if found allows access to the home page
-                    //otherwise throw error and try again.
-                    Navigator.pushNamed(context, '/second');
+                  bool emailInDatabase = await emailExists(_emailController.text);
+                  if(!emailInDatabase){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Incorrect Email or Password.')),
+                      );
+                     }else{
+                        Navigator.pushNamed(context, '/second');
+                    }                   
                   }
                 },
               ),
