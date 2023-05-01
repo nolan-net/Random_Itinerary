@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:random_iternerary/storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class SignInPage2 extends StatelessWidget {
   const SignInPage2({Key? key}) : super(key: key);
@@ -77,21 +76,21 @@ class __FormContentState extends State<_FormContent> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final storage = UserStorage();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   
   
-Future<bool> emailExists(String? email) async {
+Future<bool> validateEmailAndPassword(String? email, String? password) async {
   final userQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .get();
+      .collection('users')
+      .where('email', isEqualTo: email)
+      .where('password', isEqualTo: password)
+      .get();
 
   return userQuery.docs.isNotEmpty;
-
 }
-
 
 
 
@@ -130,6 +129,7 @@ Future<bool> emailExists(String? email) async {
             ),
             _gap(),
             TextFormField(
+              controller: _passwordController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter some text';
@@ -188,7 +188,7 @@ Future<bool> emailExists(String? email) async {
                 ),
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
-                  bool emailInDatabase = await emailExists(_emailController.text);
+                  bool emailInDatabase = await validateEmailAndPassword(_emailController.text, _passwordController.text);
                   if(!emailInDatabase){
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Incorrect Email or Password.')),
