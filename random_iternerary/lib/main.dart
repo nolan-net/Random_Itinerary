@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 import 'signin.dart';
 import 'createaccount.dart';
-
-
+import 'map_page.dart';
+import 'bookmarks.dart';
+import 'profile.dart';
+import 'list.dart';
 
 
 
@@ -19,7 +22,6 @@ Future<void> main() async {
 
  runApp(const MyApp());
 }
-
 
 
 class MyApp extends StatelessWidget {
@@ -38,10 +40,12 @@ class MyApp extends StatelessWidget {
       routes: {
         //Signin.dart
         '/': (context) => const SignInPage2(),
-        //main.dart
-        '/second' : (context) => const MyHomePage(),
-        //createaccount.dart
-        '/third' :(context) => const createAccount(),
+        '/main' : (context) => const MyHomePage(),
+        '/create' :(context) => const createAccount(),
+        '/map' :(context) => const MapPage(),
+        '/bookmarks' : (context) => const BookmarksPage(),
+        '/list' : (context) => const ListPage(),
+        '/profile':(context) => const ProfilePage(),
       }
 
     
@@ -50,67 +54,59 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-  
+  const MyHomePage({Key? key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
-  
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  int _currentIndex = 0;
 
+  final List<Widget> _tabs = [
+    const MapPage(),
+    const BookmarksPage(),
+    const ListPage(),
+    const ProfilePage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Random Itinerary'),
-        automaticallyImplyLeading: false,
-        leading:IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        )
-      ),
-      body: Center(
-        child: Text("Selected Page: ${_navBarItems[_selectedIndex].label}")),
-      bottomNavigationBar: NavigationBar(
-        animationDuration: const Duration(seconds: 1),
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
+
+      body: _tabs[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() {
-            _selectedIndex = index;
+            _currentIndex = index;
           });
         },
-        destinations: _navBarItems,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map_outlined),
+            activeIcon: Icon(Icons.map),
+            label: 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmarks),
+            activeIcon: Icon(Icons.bookmarks),
+            label: 'Bookmarks',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            activeIcon: Icon(Icons.list),
+            label: 'List',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
 }
-
-const _navBarItems = [
-  NavigationDestination(
-    icon: Icon(Icons.map_outlined),
-    selectedIcon: Icon(Icons.map),
-    label: 'Map',
-  ),
-  NavigationDestination(
-    icon: Icon(Icons.bookmark_border_outlined),
-    selectedIcon: Icon(Icons.bookmark_rounded),
-    label: 'BookMarks',
-  ),
-  NavigationDestination(
-    icon: Icon(Icons.format_list_bulleted),
-    selectedIcon: Icon(Icons.format_list_bulleted_outlined),
-    label: 'Create List',
-  ),
-  NavigationDestination(
-    icon: Icon(Icons.person_outline_rounded),
-    selectedIcon: Icon(Icons.person_rounded),
-    label: 'Profile',
-  ),
-];
-

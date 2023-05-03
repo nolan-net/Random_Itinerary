@@ -4,6 +4,10 @@
         android:label="random_iternerary"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,4 +35,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+
 </manifest>

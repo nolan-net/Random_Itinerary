@@ -77,22 +77,27 @@ class __FormContentState extends State<_FormContent> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final storage = UserStorage();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  
-  
-Future<bool> emailExists(String? email) async {
+
+Future<bool> userMatch(String email, String password) async {
   final userQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .get();
+      .collection('users')
+      .where('email', isEqualTo: email)
+      .limit(1)
+      .get();
 
-  return userQuery.docs.isNotEmpty;
+  if (userQuery.docs.isNotEmpty) {
+    final userDoc = userQuery.docs.first;
+    final storedEmail = userDoc.get('email');
+    final storedPassword = userDoc.get('password');
+    return (storedEmail == email) && (storedPassword == password);
+  }
 
+  return false;
 }
-
-
 
 
   @override
@@ -130,13 +135,14 @@ Future<bool> emailExists(String? email) async {
             ),
             _gap(),
             TextFormField(
+              controller: _passwordController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter some text';
                 }
 
-                if (value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                if (value.length < 2) {
+                  return 'Password must be at least 2 characters';
                 }
                 return null;
               },
@@ -186,25 +192,25 @@ Future<bool> emailExists(String? email) async {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                  bool emailInDatabase = await emailExists(_emailController.text);
-                  if(!emailInDatabase){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Incorrect Email or Password.')),
-                      );
-                     }else{
-                        Navigator.pushNamed(context, '/second');
-                    }                   
-                  }
-                },
+            onPressed: () async {
+              if (_formKey.currentState?.validate() ?? false) {
+                bool isuserMatch = await userMatch(_emailController.text,_passwordController.text);
+                if (!isuserMatch) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Incorrect email or password.')),
+                  );
+                }else{
+                  Navigator.pushNamed(context, '/main');
+                }
+              }
+            }
               ),
-              
+  
             ),
             _gap(),
             FloatingActionButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/third');
+                Navigator.pushNamed(context, '/create');
               },
               child: const Icon(Icons.fiber_new),
             ),
@@ -213,12 +219,6 @@ Future<bool> emailExists(String? email) async {
       ),
     );
   }
-/*
-  FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context '/third')
-        },
-      ),
-*/
+
   Widget _gap() => const SizedBox(height: 16);
 }
