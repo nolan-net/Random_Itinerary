@@ -5,28 +5,20 @@ import 'package:google_places_flutter/google_places_flutter.dart';
 import 'signin.dart';
 import 'createaccount.dart';
 
-
-
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
- runApp(const MyApp());
+  runApp(const MyApp());
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Random Itinerary',
       theme: ThemeData(
@@ -34,47 +26,42 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        //Signin.dart
         '/': (context) => const SignInPage2(),
-        //main.dart
-        '/second' : (context) => const MyHomePage(),
-        //createaccount.dart
-        '/third' :(context) => const createAccount(),
-      }
-
-    
+        '/third': (context) => const createAccount(),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-  
+  final String email;
+
+  const MyHomePage({required this.email, Key? key}) : super(key: key);
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
-  
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
 
+  String get _profileLabel => 'Profile (${widget.email})';
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Random Itinerary'),
         automaticallyImplyLeading: false,
-        leading:IconButton(
+        leading: IconButton(
           icon: const Icon(Icons.logout),
-          onPressed: (){
+          onPressed: () {
             Navigator.pop(context);
           },
-        )
+        ),
       ),
       body: Center(
-        child: Text("Selected Page: ${_navBarItems[_selectedIndex].label}")),
+          child: Text("Selected Page: ${_navBarItems[_selectedIndex].label}")),
       bottomNavigationBar: NavigationBar(
         animationDuration: const Duration(seconds: 1),
         selectedIndex: _selectedIndex,
@@ -83,7 +70,21 @@ class _MyHomePageState extends State<MyHomePage> {
             _selectedIndex = index;
           });
         },
-        destinations: _navBarItems,
+        destinations: _navBarItems.asMap().entries.map((entry) {
+          int index = entry.key;
+          NavigationDestination destination = entry.value;
+
+          if (index == _navBarItems.length - 1) {
+            // Replace the label for the Profile tab with _profileLabel
+            return NavigationDestination(
+              icon: destination.icon,
+              selectedIcon: destination.selectedIcon,
+              label: _profileLabel,
+            );
+          } else {
+            return destination;
+          }
+        }).toList(),
       ),
     );
   }
@@ -108,7 +109,6 @@ const _navBarItems = [
   NavigationDestination(
     icon: Icon(Icons.person_outline_rounded),
     selectedIcon: Icon(Icons.person_rounded),
-    label: 'Profile',
+    label: '', // This will be replaced by the _profileLabel in the build method
   ),
 ];
-

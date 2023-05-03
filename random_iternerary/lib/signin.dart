@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:random_iternerary/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'main.dart';
 
 void main() {
   runApp(MyApp());
@@ -206,7 +207,14 @@ class __FormContentState extends State<_FormContent> {
                         SnackBar(content: Text('Incorrect Email or Password.')),
                       );
                     } else {
-                      Navigator.pushNamed(context, '/second');
+                      // Navigate to MyHomePage and pass the email
+                      // ignore: use_build_context_synchronously
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyHomePage(email: _emailController.text),
+                        ),
+                      );
                     }                   
                   }
                 },
