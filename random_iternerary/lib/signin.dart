@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:random_iternerary/storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'main.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: SignInPage2(),
+    );
+  }
+}
 
 class SignInPage2 extends StatelessWidget {
   const SignInPage2({Key? key}) : super(key: key);
@@ -16,7 +35,6 @@ class SignInPage2 extends StatelessWidget {
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      _Logo(),
                       _FormContent(),
                     ],
                   )
@@ -25,42 +43,12 @@ class SignInPage2 extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 800),
                     child: Row(
                       children: const [
-                        Expanded(child: _Logo()),
                         Expanded(
                           child: Center(child: _FormContent()),
                         ),
                       ],
                     ),
                   )));
-  }
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FlutterLogo(size: isSmallScreen ? 100 : 200),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "Welcome to Flutter!",
-            textAlign: TextAlign.center,
-            style: isSmallScreen
-                ? Theme.of(context).textTheme.headline5
-                : Theme.of(context)
-                    .textTheme
-                    .headline4
-                    ?.copyWith(color: Colors.black),
-          ),
-        )
-      ],
-    );
   }
 }
 
@@ -81,24 +69,43 @@ class __FormContentState extends State<_FormContent> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-
-Future<bool> userMatch(String email, String password) async {
-  final userQuery = await _firestore
-      .collection('users')
-      .where('email', isEqualTo: email)
-      .limit(1)
-      .get();
-
-  if (userQuery.docs.isNotEmpty) {
-    final userDoc = userQuery.docs.first;
-    final storedEmail = userDoc.get('email');
-    final storedPassword = userDoc.get('password');
-    return (storedEmail == email) && (storedPassword == password);
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberMeAndEmail();
   }
 
-  return false;
+  Future<void> _loadRememberMeAndEmail() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    _rememberMe = prefs.getBool('rememberMe') ?? false;
+    if (_rememberMe) {
+      _emailController.text = prefs.getString('email') ?? '';
+    }
+  });
 }
 
+  Future<void> _saveRememberMe(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('rememberMe', value);
+    if (value) {
+      prefs.setString('email', _emailController.text);
+    } else {
+      prefs.remove('email');
+    }
+  }
+
+  // ...
+
+  Future<bool> validateEmailAndPassword(String? email, String? password) async {
+    final userQuery = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .where('password', isEqualTo: password)
+        .get();
+
+    return userQuery.docs.isNotEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +117,9 @@ Future<bool> userMatch(String email, String password) async {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField (
+            TextFormField(
               controller: _emailController,
               validator: (value) {
-                // add email validation
                 if (value == null || value.isEmpty) {
                   return 'Please enter some text';
                 }
@@ -124,7 +130,7 @@ Future<bool> userMatch(String email, String password) async {
                 if (!emailValid) {
                   return 'Please enter a valid email';
                 }
-
+                return null;
               },
               decoration: const InputDecoration(
                 labelText: 'Email',
@@ -141,8 +147,8 @@ Future<bool> userMatch(String email, String password) async {
                   return 'Please enter some text';
                 }
 
-                if (value.length < 2) {
-                  return 'Password must be at least 2 characters';
+                if (value.length < 6) {
+                  return 'Password must be at least 6 characters';
                 }
                 return null;
               },
@@ -170,6 +176,7 @@ Future<bool> userMatch(String email, String password) async {
                 if (value == null) return;
                 setState(() {
                   _rememberMe = value;
+                  _saveRememberMe(value);
                 });
               },
               title: const Text('Remember me'),
@@ -192,25 +199,31 @@ Future<bool> userMatch(String email, String password) async {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-            onPressed: () async {
-              if (_formKey.currentState?.validate() ?? false) {
-                bool isuserMatch = await userMatch(_emailController.text,_passwordController.text);
-                if (!isuserMatch) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Incorrect email or password.')),
-                  );
-                }else{
-                  Navigator.pushNamed(context, '/main');
-                }
-              }
-            }
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    bool emailInDatabase = await validateEmailAndPassword(_emailController.text, _passwordController.text);
+                    if(!emailInDatabase){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Incorrect Email or Password.')),
+                      );
+                    } else {
+                      // Navigate to MyHomePage and pass the email
+                      // ignore: use_build_context_synchronously
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyHomePage(email: _emailController.text),
+                      ),
+                    );
+                    }                   
+                  }
+                },
               ),
-  
             ),
-            _gap(),
+                        _gap(),
             FloatingActionButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/create');
+                Navigator.pushNamed(context, '/third');
               },
               child: const Icon(Icons.fiber_new),
             ),

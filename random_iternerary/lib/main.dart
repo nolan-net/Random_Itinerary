@@ -4,7 +4,6 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
 import 'signin.dart';
 import 'createaccount.dart';
 import 'map_page.dart';
@@ -12,17 +11,14 @@ import 'bookmarks.dart';
 import 'profile.dart';
 import 'list.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
- runApp(const MyApp());
+  runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,7 +26,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Random Itinerary',
       theme: ThemeData(
@@ -40,21 +35,21 @@ class MyApp extends StatelessWidget {
       routes: {
         //Signin.dart
         '/': (context) => const SignInPage2(),
-        '/main' : (context) => const MyHomePage(),
-        '/create' :(context) => const createAccount(),
-        '/map' :(context) => const MapPage(),
-        '/bookmarks' : (context) => const BookmarksPage(),
-        '/list' : (context) => const ListPage(),
-        '/profile':(context) => const ProfilePage(),
-      }
-
-    
+        '/main': (context) => const MyHomePage(email: ''),
+        '/create': (context) => const createAccount(),
+        '/map': (context) => const MapPage(),
+        '/bookmarks': (context) => const BookmarksPage(),
+        '/list': (context) => const ListPage(),
+        '/profile': (context) => const ProfilePage(email: '{widget.email}'),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key});
+  final String email;
+
+  const MyHomePage({required this.email, Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -63,18 +58,17 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _tabs = [
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> tabs = [
     const MapPage(),
     const BookmarksPage(),
     const ListPage(),
-    const ProfilePage(),
-  ];
+    ProfilePage(email: widget.email),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-
-      body: _tabs[_currentIndex],
+      body: tabs[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
