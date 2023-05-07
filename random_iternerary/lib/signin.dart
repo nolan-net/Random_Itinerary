@@ -100,11 +100,14 @@ class __FormContentState extends State<_FormContent> {
   Future<bool> validateEmailAndPassword(String? email, String? password) async {
     final userQuery = await _firestore
         .collection('users')
-        .where('email', isEqualTo: email)
-        .where('password', isEqualTo: password)
+        .doc(email)
         .get();
 
-    return userQuery.docs.isNotEmpty;
+        if(userQuery.exists && userQuery.get('password') == password){
+          return true;
+        }else{
+          return false;
+        }
   }
 
   @override
@@ -223,7 +226,7 @@ class __FormContentState extends State<_FormContent> {
                         _gap(),
             FloatingActionButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/third');
+                Navigator.pushNamed(context, '/create');
               },
               child: const Icon(Icons.fiber_new),
             ),

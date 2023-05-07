@@ -19,7 +19,7 @@ Future<void> initializeDefault() async {
 bool get isInitialized => _initialized;
 
 
-Future<void> writeUserInfo(String? username, String? password, String? email) async {
+Future<void> writeUserInfo(String? email, String? password, String? username) async {
     if(!isInitialized){
       await initializeDefault();
     }
@@ -34,13 +34,14 @@ Future<void> writeUserInfo(String? username, String? password, String? email) as
   }
 
   // Create a new document with the given username, email and password
-  await firestore.collection('users').add({
+  await firestore.collection('users').doc(email).set({
     'email': email,
     'password': password,
     'username': username,
+    'Schedule': [],
   }).then((value){
     if (kDebugMode) {
-      print('User added successfully with ID: ${value.id}');
+      print('User added successfully with ID: $email');
     }
   }).catchError((error){
     if (kDebugMode) {

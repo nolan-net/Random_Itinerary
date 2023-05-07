@@ -49,10 +49,10 @@ class __FormContentState extends State<_FormContent> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String? _username;
+  
   String? _email;
   String? _password;
-
+  String? _username;
 
   @override
   Widget build(BuildContext context) {
