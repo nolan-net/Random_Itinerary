@@ -1,10 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:search_map_place_updated/search_map_place_updated.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:google_api_headers/google_api_headers.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 
 import 'storage.dart';
@@ -26,7 +24,7 @@ class _MapPageState extends State<MapPage> {
   LatLng startLocation = const LatLng(39.7285, -121.8375);
   CameraPosition? cameraPosition;
   final Set<Marker> markers = new Set(); //markers for google map
-   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  double _radius = 0; // 0 miles (in degrees)
 
   @override
   Widget build(BuildContext context) {
@@ -43,94 +41,160 @@ class _MapPageState extends State<MapPage> {
               target: startLocation, // Set the initial position of the map to Chico
               zoom: 12.0, // Set the initial zoom level
             ),
-            markers: getmarkers(),
+            markers: markers,
             mapType: MapType.normal,
-             onMapCreated: (controller) { //method called when map is created
-                      setState(() {
-                        mapController = controller; 
-                      });
+            onMapCreated: (controller) {
+              //method called when map is created
+              setState(() {
+                mapController = controller;
+              });
             },
           ),
-             Positioned(  //search input bar
-               top:10,
-               child: InkWell(
-                 onTap: () async {
-                  var place = await PlacesAutocomplete.show(
-                          context: context,
-                          apiKey: apiKey,
-                          mode: Mode.overlay,
-                          types: [],
-                          strictbounds: false,
-                          components: [],
-                                      //google_map_webservice package
-                          onError: (err){
-                             print(err);
-                          }
-                      );
+          Positioned(
+            //search input bar
+            top: 10,
+            child: InkWell(
+              onTap: () async {
+                var place = await PlacesAutocomplete.show(
+                  context: context,
+                  apiKey: apiKey,
+                  mode: Mode.overlay,
+                  types: [],
+                  strictbounds: false,
+                  components: [],
+                  onError: (err) {
+                    print(err);
+                  },
+                );
 
-                   if(place != null){
-                        setState(() {
-                          location = place.description.toString();
-                        });
+                if (place != null) {
+                  setState(() {
+                    location = place.description.toString();
+                  });
 
-                       //form google_maps_webservice package
-                       final plist = GoogleMapsPlaces(apiKey:apiKey,
-                              apiHeaders: await GoogleApiHeaders().getHeaders(),
-                                        //from google_api_headers package
-                        );
-                        String placeid = place.placeId ?? "0";
-                        final detail = await plist.getDetailsByPlaceId(placeid);
-                        final geometry = detail.result.geometry!;
-                        final lat = geometry.location.lat;
-                        final lang = geometry.location.lng;
-                        var newlatlang = LatLng(lat, lang);
-                        
-                       setState(() {
-                        //move map camera to selected place with animation
-                        markers.add(Marker( //add first marker
-                        markerId: MarkerId(detail.toString()),
-                        position: newlatlang, //position of marker
-                        infoWindow: InfoWindow( //popup info 
-                          title: 'Bookmark',
-                          snippet: 'Tap the info box to save to bookmarks',
-                          onTap: (){  
-                            print("You Tapped me!");
-                            //Here we save google place id, create firebase instance and then save to user
-                            storage.writeUserBookmark(widget.email, placeid);
-                          },
-                        
-                  
+                  //form google_maps_webservice package
+                  final plist = GoogleMapsPlaces(
+                    apiKey: apiKey,
+                    apiHeaders: await GoogleApiHeaders().getHeaders(),
+                    //from google_api_headers package
+                  );
+                  String placeid = place.placeId ?? "0";
+                  final detail = await plist.getDetailsByPlaceId(placeid);
+                  final geometry = detail.result.geometry!;
+                  final lat = geometry.location.lat;
+                  final lng = geometry.location.lng;
+                  var newlatlang = LatLng(lat, lng);
 
-                        ),
-                        icon: BitmapDescriptor.defaultMarker, //Icon for Marker
-                        ));
-                       });
-                        mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newlatlang, zoom: 17)));
-                   }
-                 },
-                 child: Padding(
-                   padding: EdgeInsets.all(15),
-                    child: Card(
-                       child: Container(
-                         padding: EdgeInsets.all(0),
-                         width: MediaQuery.of(context).size.width - 40,
-                         child: ListTile(
-                            title:Text(location, style: TextStyle(fontSize: 18),),
-                            trailing: Icon(Icons.search),
-                            dense: true,
-                         )
-                       ),
+                  setState(() {
+                    //move map camera to selected place with animation
+                    markers.add(Marker(
+                      //add first marker
+                      markerId: MarkerId(detail.toString()),
+                      position: newlatlang, //position of marker
+                      infoWindow: InfoWindow(
+                        //popup info
+                        title: 'Bookmark',
+                        snippet: 'Tap the info box to save to bookmarks',
+                        onTap: () {
+                          print("You Tapped me!");
+                          //Here we save google place id, create firebase instance and then save to user
+                          storage.writeUserBookmark(widget.email, placeid);
+                        },
+                      ),
+                                            icon: BitmapDescriptor.defaultMarker, // Icon for Marker
+                    ));
+                  });
+                  mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newlatlang, zoom: 17)));
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Card(
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    width: MediaQuery.of(context).size.width - 40,
+                    child: ListTile(
+                      title: Text(
+                        location,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      trailing: Icon(Icons.search),
+                      dense: true,
                     ),
-                 )
-               ),
+                  ),
+                ),
+              ),
             ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 10,
+            child: Container(
+              width: MediaQuery.of(context).size.width - 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Radius: ${(_radius * 60).toStringAsFixed(0)} miles'),
+                    Slider(
+                      value: _radius,
+                      onChanged: (double value) {
+                        setState(() {
+                          _radius = value;
+                        });
+                      },
+                      min: 0,
+                      max: 50 / 60, // 50 miles to degrees
+                      divisions: 50,
+                      label: '${(_radius * 60).toStringAsFixed(0)} miles',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _goToRandomLocation,
+        child: Icon(Icons.shuffle),
+        backgroundColor: Colors.red,
       ),
     );
   }
-  Set<Marker> getmarkers() { //markers to place on map
-    return markers;
+
+  void _goToRandomLocation() {
+    final double centerLatitude = 39.7285;
+    final double centerLongitude = -121.8375;
+    final Random random = Random();
+
+    double randomBearing = random.nextDouble() * 2 * pi;
+    double radiusInDegrees = _radius / cos(centerLatitude * pi / 180);
+    double randomLatitude = centerLatitude + radiusInDegrees * sin(randomBearing);
+    double randomLongitude = centerLongitude + radiusInDegrees * cos(randomBearing);
+    LatLng randomLatLng = LatLng(randomLatitude, randomLongitude);
+
+    // Move the camera to the random location
+    mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: randomLatLng, zoom: 17)));
+
+    // Add a marker at the random location
+    setState(() {
+      markers.add(Marker(
+        markerId: MarkerId(randomLatLng.toString()),
+        position: randomLatLng,
+        infoWindow: InfoWindow(
+          title: 'Random Location',
+          snippet: 'This is a randomly selected location',
+        ),
+        icon: BitmapDescriptor.defaultMarker,
+      ));
+    });
   }
-
 }
-
+ //Icon for
