@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'dart:math';
 
 import 'storage.dart';
 
@@ -169,16 +170,26 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  void _goToRandomLocation() {
-    final double centerLatitude = 39.7285;
-    final double centerLongitude = -121.8375;
-    final Random random = Random();
+  Future<void> _goToRandomLocation() async {
+  final double centerLatitude = 39.7285;
+  final double centerLongitude = -121.8375;
+  final Random random = Random();
 
-    double randomBearing = random.nextDouble() * 2 * pi;
-    double radiusInDegrees = _radius / cos(centerLatitude * pi / 180);
-    double randomLatitude = centerLatitude + radiusInDegrees * sin(randomBearing);
-    double randomLongitude = centerLongitude + radiusInDegrees * cos(randomBearing);
-    LatLng randomLatLng = LatLng(randomLatitude, randomLongitude);
+  final plist = GoogleMapsPlaces(
+    apiKey: apiKey,
+    apiHeaders: await GoogleApiHeaders().getHeaders(),
+  );
+
+  final result = await plist.searchNearbyWithRadius(
+    Location(lat: centerLatitude, lng: centerLongitude),
+    (_radius * 60 * 1609).toInt(), // Convert miles to meters
+    type: 'restaurant|park',
+  );
+
+  if (result.status == 'OK' && result.results.isNotEmpty) {
+    int randomIndex = random.nextInt(result.results.length);
+    PlacesSearchResult randomPlace = result.results[randomIndex];
+    LatLng randomLatLng = LatLng(randomPlace.geometry!.location.lat, randomPlace.geometry!.location.lng);
 
     // Move the camera to the random location
     mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: randomLatLng, zoom: 17)));
@@ -189,12 +200,18 @@ class _MapPageState extends State<MapPage> {
         markerId: MarkerId(randomLatLng.toString()),
         position: randomLatLng,
         infoWindow: InfoWindow(
-          title: 'Random Location',
-          snippet: 'This is a randomly selected location',
+          title: randomPlace.name!,
+          snippet: randomPlace.vicinity,
         ),
         icon: BitmapDescriptor.defaultMarker,
       ));
     });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No nearby places found within the specified radius.')),
+    );
   }
+}
+
 }
  //Icon for
