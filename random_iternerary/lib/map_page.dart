@@ -6,6 +6,8 @@ import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class MapPage extends StatefulWidget {
   final String email;
@@ -17,91 +19,60 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   GoogleMapController? mapController;
-  String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
-  LatLng startLocation = LatLng(39.7285, -121.8375);
-  CameraPosition? cameraPosition;
-  String location = 'Search Location';
+  Set<Marker> markers = {};
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Map'),
-        backgroundColor: Colors.red,
       ),
-      body: Stack(
-        children: [
-          GoogleMap(
-            zoomGesturesEnabled: true, //allows users to zoom in and out with touch
-            initialCameraPosition: CameraPosition(
-              target: startLocation, // Set the initial position of the map to Chico
-              zoom: 12.0, // Set the initial zoom level
-            ),
-            mapType: MapType.normal,
-             onMapCreated: (controller) { //method called when map is created
-                      setState(() {
-                        mapController = controller; 
-                      });
-            },
-          ),
-             Positioned(  //search input bar
-               top:10,
-               child: InkWell(
-                 onTap: () async {
-                  var place = await PlacesAutocomplete.show(
-                          context: context,
-                          apiKey: apiKey,
-                          mode: Mode.overlay,
-                          types: [],
-                          strictbounds: false,
-                          components: [],
-                                      //google_map_webservice package
-                          onError: (err){
-                             print(err);
-                          }
-                      );
-
-                   if(place != null){
-                        setState(() {
-                          location = place.description.toString();
-                        });
-
-                       //form google_maps_webservice package
-                       final plist = GoogleMapsPlaces(apiKey:apiKey,
-                              apiHeaders: await GoogleApiHeaders().getHeaders(),
-                                        //from google_api_headers package
-                        );
-                        String placeid = place.placeId ?? "0";
-                        final detail = await plist.getDetailsByPlaceId(placeid);
-                        final geometry = detail.result.geometry!;
-                        final lat = geometry.location.lat;
-                        final lang = geometry.location.lng;
-                        var newlatlang = LatLng(lat, lang);
-                        
-
-                        //move map camera to selected place with animation
-                        mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newlatlang, zoom: 17)));
-                   }
-                 },
-                 child:Padding(
-                   padding: EdgeInsets.all(15),
-                    child: Card(
-                       child: Container(
-                         padding: EdgeInsets.all(0),
-                         width: MediaQuery.of(context).size.width - 40,
-                         child: ListTile(
-                            title:Text(location, style: TextStyle(fontSize: 18),),
-                            trailing: Icon(Icons.search),
-                            dense: true,
-                         )
-                       ),
-                    ),
-                 )
-               ),
-            ),
-        ],
+      body: GoogleMap(
+        onMapCreated: _onMapCreated,
+        initialCameraPosition: const CameraPosition(
+          target: LatLng(39.7285, -121.8375), // Set the initial position of the map to Chico
+          zoom: 12.0, // Set the initial zoom level
+        ),
+        markers: markers,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _searchForPlaces,
+        child: Icon(Icons.search),
       ),
     );
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _searchForPlaces() async {
+    final response = await http.get(Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurant&location=39.7285,-121.8375&radius=2000&region=us&type=restaurant,cafe,bakery&key=AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE'));
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+
+      if (json['status'] == 'OK') {
+        final results = json['results'];
+
+        for (final result in results) {
+          final marker = Marker(
+            markerId: MarkerId(result['place_id']),
+            position: LatLng(
+              result['geometry']['location']['lat'],
+              result['geometry']['location']['lng'],
+            ),
+            infoWindow: InfoWindow(title: result['name'], snippet: result['formatted_address'],
+            onTap: (){},),
+          );
+
+          setState(() {
+            markers.add(marker);
+          });
+        }
+      }
+    }
   }
 }
 
