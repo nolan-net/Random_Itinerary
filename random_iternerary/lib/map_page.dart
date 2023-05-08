@@ -10,14 +10,87 @@ import 'storage.dart';
 
 class MapPage extends StatefulWidget {
   final String email;
+  
 
   const MapPage({required this.email, Key? key}) : super(key: key);
 
   @override
   _MapPageState createState() => _MapPageState();
+  
+}
+class FilterDropdown extends StatefulWidget {
+  final Function(List<String> selectedFilters) onFilterChanged;
+
+  const FilterDropdown({required this.onFilterChanged, Key? key}) : super(key: key);
+
+  @override
+  _FilterDropdownState createState() => _FilterDropdownState();
 }
 
+class _FilterDropdownState extends State<FilterDropdown> {
+  List<String> _filters = [
+    'restaurant',
+    'park',
+    'movie_theater',
+    'cafe',
+    'casino',
+    'pet_store',
+    'clothing_store',
+    'gym',
+    'university',
+    'zoo',
+    'store',
+  ];
+  List<String> _selectedFilters = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      isExpanded: true,
+      hint: Text('Select filters'),
+      onChanged: (String? newValue) {
+        setState(() {
+          if (newValue != null) {
+            if (_selectedFilters.contains(newValue)) {
+              _selectedFilters.remove(newValue);
+            } else {
+              _selectedFilters.add(newValue);
+            }
+          }
+        });
+        widget.onFilterChanged(_selectedFilters);
+      },
+      items: _filters.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(value),
+              Checkbox(
+                value: _selectedFilters.contains(value),
+                onChanged: (bool? isChecked) {
+                  setState(() {
+                    if (isChecked == true) {
+                      _selectedFilters.add(value);
+                    } else {
+                      _selectedFilters.remove(value);
+                    }
+                  });
+                  widget.onFilterChanged(_selectedFilters);
+                },
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+
 class _MapPageState extends State<MapPage> {
+  String _selectedTypes = '';
   final storage = UserStorage();
   String location = 'Search Location';
   GoogleMapController? mapController;
@@ -155,18 +228,25 @@ class _MapPageState extends State<MapPage> {
                       divisions: 50,
                       label: '${(_radius * 60).toStringAsFixed(0)} miles',
                     ),
+                    FilterDropdown(
+                      onFilterChanged: (selectedFilters) {
+                        setState(() {
+                          _selectedTypes = selectedFilters.join('|');
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-        ],
+        ]
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _goToRandomLocation,
-        child: Icon(Icons.shuffle),
-        backgroundColor: Colors.red,
-      ),
+            onPressed: _goToRandomLocation,
+            child: Icon(Icons.shuffle),
+            backgroundColor: Colors.red,
+          ),
     );
   }
 
@@ -177,14 +257,14 @@ class _MapPageState extends State<MapPage> {
 
   final plist = GoogleMapsPlaces(
     apiKey: apiKey,
-    apiHeaders: await GoogleApiHeaders().getHeaders(),
+    apiHeaders: await const GoogleApiHeaders().getHeaders(),
   );
 
   final result = await plist.searchNearbyWithRadius(
     Location(lat: centerLatitude, lng: centerLongitude),
-    (_radius * 60 * 1609).toInt(), // Convert miles to meters
-    type: 'restaurant|park',
-  );
+    (_radius * 1609).toInt(), // Convert miles to meters
+    type: _selectedTypes, 
+    );
 
   if (result.status == 'OK' && result.results.isNotEmpty) {
     int randomIndex = random.nextInt(result.results.length);
@@ -212,6 +292,7 @@ class _MapPageState extends State<MapPage> {
     );
   }
 }
+
 
 }
  //Icon for
