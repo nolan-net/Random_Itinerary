@@ -7,8 +7,11 @@ import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 
+import 'storage.dart';
+
 class MapPage extends StatefulWidget {
   final String email;
+
   const MapPage({required this.email, Key? key}) : super(key: key);
 
   @override
@@ -16,11 +19,14 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  final storage = UserStorage();
+  String location = 'Search Location';
   GoogleMapController? mapController;
   String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
-  LatLng startLocation = LatLng(39.7285, -121.8375);
+  LatLng startLocation = const LatLng(39.7285, -121.8375);
   CameraPosition? cameraPosition;
-  String location = 'Search Location';
+  final Set<Marker> markers = new Set(); //markers for google map
+   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +43,7 @@ class _MapPageState extends State<MapPage> {
               target: startLocation, // Set the initial position of the map to Chico
               zoom: 12.0, // Set the initial zoom level
             ),
+            markers: getmarkers(),
             mapType: MapType.normal,
              onMapCreated: (controller) { //method called when map is created
                       setState(() {
@@ -78,12 +85,30 @@ class _MapPageState extends State<MapPage> {
                         final lang = geometry.location.lng;
                         var newlatlang = LatLng(lat, lang);
                         
-
+                       setState(() {
                         //move map camera to selected place with animation
+                        markers.add(Marker( //add first marker
+                        markerId: MarkerId(detail.toString()),
+                        position: newlatlang, //position of marker
+                        infoWindow: InfoWindow( //popup info 
+                          title: 'Bookmark',
+                          snippet: 'Tap the info box to save to bookmarks',
+                          onTap: (){  
+                            print("You Tapped me!");
+                            //Here we save google place id, create firebase instance and then save to user
+                            storage.writeUserBookmark(widget.email, placeid);
+                          },
+                        
+                  
+
+                        ),
+                        icon: BitmapDescriptor.defaultMarker, //Icon for Marker
+                        ));
+                       });
                         mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: newlatlang, zoom: 17)));
                    }
                  },
-                 child:Padding(
+                 child: Padding(
                    padding: EdgeInsets.all(15),
                     child: Card(
                        child: Container(
@@ -103,5 +128,9 @@ class _MapPageState extends State<MapPage> {
       ),
     );
   }
+  Set<Marker> getmarkers() { //markers to place on map
+    return markers;
+  }
+
 }
 

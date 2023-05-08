@@ -50,6 +50,38 @@ Future<void> writeUserInfo(String? email, String? password, String? username) as
   });
   }
 
+Future <void> writeUserBookmark(String? email, String? placeid) async{
+  if (!isInitialized) {
+    await initializeDefault();
+  }
+  
+//THIS FUNCTION W+IS SUPPOSED TO WRITE BOOKMARKS TO THE
+  //SCHEDULE ARRAY
+  //SOME WACKY STUFF WILL TAKE PLACE HERE SINCE THE .ADD FUNCTION DOESNT
+  //WORK WITH STRINGS RAAAAAAAAAAAAAAAAA
+
+}
+
+
+/* 
+if(!isInitialized){
+      await initializeDefault();
+    }
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+
+    if(querySnapshot.exists){
+      await firestore.collection('users').doc(email).update({
+        'Schedule': [size]  placeid, 
+      });
+    }else{ 
+      print("User not within system");
+    }
+
+}
+*/
+
+
 Future <bool?> checkAccount(String? value) async{
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
