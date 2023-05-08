@@ -72,7 +72,7 @@ if(!isInitialized){
 
     if(querySnapshot.exists){
       await firestore.collection('users').doc(email).update({
-        'Schedule': [size]  placeid, 
+        'Schedule': placeid, 
       });
     }else{ 
       print("User not within system");

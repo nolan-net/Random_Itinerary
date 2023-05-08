@@ -183,7 +183,7 @@ class _MapPageState extends State<MapPage> {
   final result = await plist.searchNearbyWithRadius(
     Location(lat: centerLatitude, lng: centerLongitude),
     (_radius * 60 * 1609).toInt(), // Convert miles to meters
-    type: 'restaurant|park',
+    type: 'store',
   );
 
   if (result.status == 'OK' && result.results.isNotEmpty) {
@@ -214,4 +214,3 @@ class _MapPageState extends State<MapPage> {
 }
 
 }
- //Icon for
