@@ -38,7 +38,6 @@ Future<void> writeUserInfo(String? email, String? password, String? username) as
     'email': email,
     'password': password,
     'username': username,
-    'Schedule': [],
   }).then((value){
     if (kDebugMode) {
       print('User added successfully with ID: $email');
@@ -48,38 +47,52 @@ Future<void> writeUserInfo(String? email, String? password, String? username) as
       print('writeUserInfo error: $error');
     }
   });
+
+//create bookmarks collection within the user
+firestore.collection('users').doc(email).collection('bookmarks').doc('placeid').set({
+    'title': '',
+    'address': '',
+  }).then((value) {
+    if (kDebugMode) {
+      print('Bookmark initialized');
+    }
+  }).catchError((error) {
+    if (kDebugMode) {
+      print('Error creating Bookmark collection: $error');
+    }
+  });
+
   }
 
-Future <void> writeUserBookmark(String? email, String? placeid) async{
+Future <void> writeUserBookmark(String? email, String? placeId, String? placeName, String? placeAddress) async{
   if (!isInitialized) {
     await initializeDefault();
   }
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   
-//THIS FUNCTION W+IS SUPPOSED TO WRITE BOOKMARKS TO THE
-  //SCHEDULE ARRAY
-  //SOME WACKY STUFF WILL TAKE PLACE HERE SINCE THE .ADD FUNCTION DOESNT
-  //WORK WITH STRINGS RAAAAAAAAAAAAAAAAA
+  try {
+    // Create a reference to the 'bookmarks' collection within the user document
+    CollectionReference<Map<String, dynamic>> bookmarksCollection = firestore
+        .collection('users')
+        .doc(email)
+        .collection('bookmarks');
 
+    // Add a new document to the 'bookmarks' collection with the specified place ID
+    await bookmarksCollection.doc(placeId).set({
+      'title': placeName,
+      'address': placeAddress,
+    });
+
+    if (kDebugMode) {
+      print('User bookmark added $placeName successfully with place ID: $placeId');
+    }
+  } catch (error) {
+    if (kDebugMode) {
+      print('Error adding user bookmark: $error');
+    }
+  }
 }
 
-
-/* 
-if(!isInitialized){
-      await initializeDefault();
-    }
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-
-    if(querySnapshot.exists){
-      await firestore.collection('users').doc(email).update({
-        'Schedule': placeid, 
-      });
-    }else{ 
-      print("User not within system");
-    }
-
-}
-*/
 
 
 Future <bool?> checkAccount(String? value) async{
