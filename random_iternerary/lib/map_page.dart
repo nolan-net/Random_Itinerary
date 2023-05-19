@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -24,7 +25,27 @@ class _MapPageState extends State<MapPage> {
   String location = 'Search Location';
   GoogleMapController? mapController;
   String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
-  LatLng startLocation = const LatLng(39.7285, -121.8375);
+  //Don't need this now
+  //  LatLng startLocation = const LatLng(39.7285, -121.8375);
+
+  LatLng startLocation = LatLng(0, 0); // Initial value
+
+  @override
+  void initState() {
+    super.initState();
+    _initCurrentLocation();
+  }
+
+  void _initCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high
+    );
+
+    setState(() {
+      startLocation = LatLng(position.latitude, position.longitude);
+    });
+  }
+
   CameraPosition? cameraPosition;
   final Set<Marker> markers = new Set(); //markers for google map
   double _radius = 0; // 0 miles (in degrees)
