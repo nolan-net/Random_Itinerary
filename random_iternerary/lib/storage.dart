@@ -93,7 +93,33 @@ Future <void> writeUserBookmark(String? email, String? placeId, String? placeNam
   }
 }
 
+  Future <void> writeUserList(String? email, String? listname, String? jsonString) async{
+    if (!isInitialized) {
+      await initializeDefault();
+    }
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+    try {
+      // Create a reference to the 'bookmarks' collection within the user document
+      CollectionReference<Map<String, dynamic>> listsCollection = firestore
+          .collection('users')
+          .doc(email)
+          .collection('lists');
+
+      // Add a new document to the 'bookmarks' collection with the specified place ID
+      await listsCollection.doc(listname).set({
+        'jsonString': jsonString,
+      });
+
+      if (kDebugMode) {
+        print('User list added $listname successfully');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error adding user list: $error');
+      }
+    }
+  }
 
 Future <bool?> checkAccount(String? value) async{
 

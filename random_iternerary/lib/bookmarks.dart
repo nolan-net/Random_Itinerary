@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'list.dart';
+import 'dart:convert';
+import 'storage.dart';
 
 class BookmarksPage extends StatefulWidget {
   final String email;
@@ -12,6 +15,54 @@ class BookmarksPage extends StatefulWidget {
 
 class _BookmarksPageState extends State<BookmarksPage> {
   List<String> selectedTitles = [];
+  final storage = UserStorage();
+
+  Future<void> storeSelectedTitles(String listName) async {
+    try {
+      String jsonString = jsonEncode(selectedTitles);
+      print(jsonString);
+      // Create a reference to the Firebase Storage location
+      storage.writeUserList(widget.email, listName, jsonString);
+      // Upload the JSON string to Firebase Storage
+      print('Selected titles stored in Firebase Storage.');
+    } catch (error) {
+      print('Error storing selected titles: $error');
+    }
+  }
+
+  Future<void> showNameInputDialog() async {
+    TextEditingController nameController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter List Name'),
+          content: TextFormField(
+            controller: nameController,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () {
+                String listName = nameController.text.trim();
+                if (listName.isNotEmpty) {
+                  storeSelectedTitles(listName);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +135,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Print selected titles
-          print(selectedTitles);
+          showNameInputDialog();
         },
         child: Icon(Icons.check),
       ),

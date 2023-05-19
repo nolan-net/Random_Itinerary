@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/create': (context) => const createAccount(),
         '/map': (context) => const MapPage(email: '{widget.email}'),
         '/bookmarks': (context) => const BookmarksPage(email:'widget.email'),
-        '/list': (context) => const ListPage(),
+        '/list': (context) => const ListPage(email: '{widget.email}'),
         '/profile': (context) => const ProfilePage(email: '{widget.email}'),
       },
     );
@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Widget> tabs = [
     MapPage(email:widget.email),
     BookmarksPage(email:widget.email),
-    const ListPage(),
+    ListPage(email:widget.email),
     ProfilePage(email: widget.email),
     ];
 
