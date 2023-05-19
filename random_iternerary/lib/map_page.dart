@@ -24,8 +24,10 @@ class _MapPageState extends State<MapPage> {
   final storage = UserStorage();
   String location = 'Search Location';
   GoogleMapController? mapController;
+  // Apparently you shouldn't have your api key out like this, but we don't plan on
+  // a public version of this staying the same.
   String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
-  //Don't need this now
+  //Test Value - Don't need this now
   //  LatLng startLocation = const LatLng(39.7285, -121.8375);
 
   LatLng startLocation = LatLng(0, 0); // Initial value
@@ -45,7 +47,7 @@ class _MapPageState extends State<MapPage> {
       startLocation = LatLng(position.latitude, position.longitude);
     });
   }
-
+  // Set initial camera position, camera is wherever the map should search from initially.
   CameraPosition? cameraPosition;
   final Set<Marker> markers = new Set(); //markers for google map
   double _radius = 0; // 0 miles (in degrees)
@@ -116,6 +118,8 @@ class _MapPageState extends State<MapPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // So here we're multiplying by 60 because radius is measured in degrees.
+                    // 60 degrees should be approximately one mile.
                     Text('Radius: ${(_radius * 60).toStringAsFixed(0)} miles'),
                     Slider(
                       value: _radius,
@@ -153,6 +157,7 @@ class _MapPageState extends State<MapPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // Now add markers accordingly
           _addRandomMarkers(int.parse(_countController.text));
           // Dismiss the keyboard
           SystemChannels.textInput.invokeMethod('TextInput.hide');
@@ -164,8 +169,9 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _addRandomMarkers(int count) async {
-    final double centerLatitude = 39.7285;
-    final double centerLongitude = -121.8375;
+    // Don't need these, use current 
+    //final double centerLatitude = 39.7285;
+    //final double centerLongitude = -121.8375;
     final Random random = Random();
     setState(() {
       markers.clear();
@@ -178,8 +184,10 @@ class _MapPageState extends State<MapPage> {
 
     for (int i = 0; i < count; i++) {
       final result = await plist.searchNearbyWithRadius(
-        Location(lat: centerLatitude, lng: centerLongitude),
-        (_radius * 1609).toInt(), // Convert miles to degrees
+        Location(lat: startLocation.latitude, lng: startLocation.longitude),
+        (_radius * 1609).toInt(), 
+        // Convert miles to meters 
+        //(hopefully this 'common' metric system will help with any distance conflict errors)
         type: _selectedTypes,
       );
 
@@ -231,7 +239,8 @@ class FilterDropdown extends StatefulWidget {
 }
 
 class _FilterDropdownState extends State<FilterDropdown> {
-  List<String> _filters = [
+  final List<String> _filters = [
+    // Some random filters from googlePlaces API
     'restaurant',
     'park',
     'movie_theater',
@@ -244,7 +253,7 @@ class _FilterDropdownState extends State<FilterDropdown> {
     'zoo',
     'store',
   ];
-  List<String> _selectedFilters = [];
+  final List<String> _selectedFilters = [];
 
   @override
   Widget build(BuildContext context) {
