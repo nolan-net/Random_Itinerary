@@ -1,4 +1,7 @@
 # Random_Itinerary
+
+Ignore the .idea file, everything is within the mispelled random iternerary.
+
 Each collaborator began with their respective branch (named after each member's GitHub username) tasked with specific pages to implement. The final product will be placed here in the main branch. NOTE: Beefus, Working, and Bookmarks are sub-branches where we grouped to accomplish a specific task,
 
 Overview: Our project is essentially a random itinerary generator. Which heavily relies on the use of the Google Places API to interact with location data and provide locations for users. The app randomly generates locations within a radius specified by the user from their current position. The user can also set filters for specific types of locations to appear. They can search for specific locations through the search bar at the top of the map page as well. Locations can be saved as bookmarks and act as a favorite spot for a user. A list of bookmarks can be created by the user as well and acts as a way to bundle favorite locations These bookmarks, Lists, as well as a user’s profile, are stored in our Firebase database. A user login page acts as a form of authentication where they can use their email and password to log in and or make a new account if need be. Once logged in and a user has saved some locations and made a list or two they can view their profile information at any time within the profile page.
