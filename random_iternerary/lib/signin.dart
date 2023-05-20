@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:random_iternerary/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -69,10 +70,22 @@ class __FormContentState extends State<_FormContent> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  void _requestPermissions() async {
+  var status = await Permission.location.status;
+  if (!status.isGranted) {
+    status = await Permission.location.request();
+    if (!status.isGranted) {
+      // Handle the case when permission is not granted
+      // Show a dialog or redirect to another page.
+    }
+  }
+}
+
   @override
   void initState() {
     super.initState();
     _loadRememberMeAndEmail();
+    _requestPermissions();
   }
 
   Future<void> _loadRememberMeAndEmail() async {

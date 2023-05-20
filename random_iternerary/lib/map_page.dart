@@ -46,6 +46,10 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       startLocation = LatLng(position.latitude, position.longitude);
     });
+    //New Current;
+
+    mapController?.animateCamera(
+    CameraUpdate.newLatLngZoom(startLocation, 12.0));
   }
   // Set initial camera position, camera is wherever the map should search from initially.
   CameraPosition? cameraPosition;
