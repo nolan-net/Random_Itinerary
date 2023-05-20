@@ -30,7 +30,7 @@ class _MapPageState extends State<MapPage> {
   //Test Value - Don't need this now
   //  LatLng startLocation = const LatLng(39.7285, -121.8375);
 
-  LatLng startLocation = LatLng(0, 0); // Initial value
+  LatLng startLocation = const LatLng(39.7285, -121.8375); // Initial value
 
   @override
   void initState() {
@@ -39,18 +39,17 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _initCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high
-    );
+  Position position = await Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.high
+  );
 
-    setState(() {
-      startLocation = LatLng(position.latitude, position.longitude);
-    });
-    //New Current;
-
-    mapController?.animateCamera(
-    CameraUpdate.newLatLngZoom(startLocation, 12.0));
-  }
+  startLocation = LatLng(position.latitude, position.longitude);
+  
+  // Check if mapController is not null
+  mapController?.animateCamera(
+    CameraUpdate.newLatLngZoom(startLocation, 12.0)
+  );
+}
   // Set initial camera position, camera is wherever the map should search from initially.
   CameraPosition? cameraPosition;
   final Set<Marker> markers = new Set(); //markers for google map
@@ -74,11 +73,12 @@ class _MapPageState extends State<MapPage> {
             ),
             markers: markers,
             mapType: MapType.normal,
-            onMapCreated: (controller) {
-              //method called when map is created
-              setState(() {
-                mapController = controller;
-              });
+            onMapCreated: (GoogleMapController controller) async {
+              mapController = controller;
+
+              _initCurrentLocation();
+
+              setState(() {}); // To update the UI based on the new state
             },
           ),
           Positioned(
@@ -178,6 +178,7 @@ class _MapPageState extends State<MapPage> {
     //final double centerLongitude = -121.8375;
     final Random random = Random();
     setState(() {
+      _initCurrentLocation();
       markers.clear();
     });
 
