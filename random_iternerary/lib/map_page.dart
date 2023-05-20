@@ -28,19 +28,36 @@ class _MapPageState extends State<MapPage> {
   // a public version of this staying the same.
   String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
   //Test Value - Don't need this now
-  //  LatLng startLocation = const LatLng(39.7285, -121.8375);
+  LatLng startLocation = const LatLng(39.7285, -121.8375);
 
-  LatLng startLocation = LatLng(0, 0); // Initial value
+  //LatLng startLocation = LatLng(0, 0); // Initial value
 
   @override
   void initState() {
     super.initState();
+    _checkLocationPermission();
+  }
+
+  void _checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      // Location permission is denied or permanently denied, request permission from the user
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        // Location permission is still not granted, handle the error
+        return;
+      }
+    }
+
+    // Location permission is granted, initialize the current location
     _initCurrentLocation();
   }
 
   void _initCurrentLocation() async {
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high
+      desiredAccuracy: LocationAccuracy.high,
     );
 
     setState(() {
