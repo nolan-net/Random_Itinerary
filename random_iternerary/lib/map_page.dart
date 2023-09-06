@@ -26,7 +26,7 @@ class _MapPageState extends State<MapPage> {
   GoogleMapController? mapController;
   // Apparently you shouldn't have your api key out like this, but we don't plan on
   // a public version of this staying the same.
-  String apiKey = 'AIzaSyDILNkPpI7wpfSx1oRSqzbDPwzd6eCXVDE';
+  String apiKey = 'INSERT KEY HERE';
   //Test Value - Don't need this now
   //  LatLng startLocation = const LatLng(39.7285, -121.8375);
 
