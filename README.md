@@ -1,19 +1,44 @@
-# Random_Itinerary
+## Random Itinerary: An Intuitive Random Travel Itinerary Generator
 
-Ignore the .idea file, everything is within the mispelled random iternerary.
+**Random Itinerary** provides a seamless travel planning experience, leveraging the robust Google Places API to curate and present location data tailored to users' preferences. With options to create a spontaneous adventure or meticulously curate your favorite spots, our platform accommodates all sorts of travelers. Here's a comprehensive guide on how to use 
 
-Each collaborator began with their respective branch (named after each member's GitHub username) tasked with specific pages to implement. The final product will be placed here in the main branch. NOTE: Beefus, Working, and Bookmarks are sub-branches where we grouped to accomplish a specific task,
+---
 
-Overview: Our project is essentially a random itinerary generator. Which heavily relies on the use of the Google Places API to interact with location data and provide locations for users. The app randomly generates locations within a radius specified by the user from their current position. The user can also set filters for specific types of locations to appear. They can search for specific locations through the search bar at the top of the map page as well. Locations can be saved as bookmarks and act as a favorite spot for a user. A list of bookmarks can be created by the user as well and acts as a way to bundle favorite locations These bookmarks, Lists, as well as a user’s profile, are stored in our Firebase database. A user login page acts as a form of authentication where they can use their email and password to log in and or make a new account if need be. Once logged in and a user has saved some locations and made a list or two they can view their profile information at any time within the profile page.
+### Features:
 
-How to use Random Itinerary:
+#### 1. **User Authentication**:
+- **Login**: Input your email and password to access your account.
+  - Utilize the `Remember Me` feature for quicker future logins.
+- **New User Registration**: If you don’t have an account:
+  1. Click on `Create New Account`.
+  2. Fill in your desired username, email, and password.
+  3. After registration, navigate back and login using your credentials.
 
-Login: The user is prompted to enter in an email and password at the login page. There is a remember me option that can be used to save the email address. If you do not have an existing account, you can create a new account by pressing the button below the login button. You will be prompted to enter a username, email, and password. After entering in the details, you must then hit create account and then press the back button to log in with your newly created account.
+#### 2. **Map Page**: 
+- Upon successful login, you'll be navigated to the central element of our app.
+- **Location Permissions**: Grant access for a personalized experience based on your current location. Declining will default the map to center around Chico.
+- **Customizable Exploration**:
+  1. Set your exploration radius (ranging from 0 to 50 miles).
+  2. Apply filters to refine the type of locations presented.
+  3. Specify the number of locations (we recommend up to 5 markers to maintain optimal performance and cost efficiency).
+  4. Hit the `+` button, and your tailored random itinerary will populate on the map.
+  5. For bookmarking any location, simply tap on the location's marker and then on its displayed name and address.
 
-Map Page: If your account details are entered correctly, it will take you to the map page. There is a navigation bar on the bottom of the page denoting the different parts of the app. The app will then ask for location permissions. If you accept, the searches on the map will be based on your location, otherwise it will be based around Chico. The map page is the main part of this app. There is a radius slider from 0-50 miles and filters that you can apply to narrow your search. Finally you can choose an amount of markers on count to highlight with markers(Please do not try to query more than 5, our money is running dry :(). Finally after setting those parameters, you can hit the + button to generate your random itinerary markers. You can click on any marker produced and if you would like to add any to your bookmarks, just hit the textbox that contains the name and address.
+#### 3. **Bookmarks**: 
+- View your curated list of saved locations.
+- **Creating Lists**:
+  1. Select desired locations via checkmarks.
+  2. Click on the checkmark button below.
+  3. Name your list, which will then be saved securely to our Firebase database.
 
-Bookmarks: The next icon on the navigation bar is user bookmarks. Any locations saved on the map page are stored here. You can then create a list of places by checkmarking any combination of bookmarks and then finally hitting the checkmark button on the bottom. The user will be prompted to enter in a name for the list before saving. The saved list is then created and stored in firebase.
+#### 4. **Lists**:
+- Access all your saved lists, giving you a compiled view of your favorite spots.
+- Tap on a list name to view its constituent locations.
 
-Lists: The next icon after bookmarks is the list page. This page contains saved lists that are created from the bookmarks page. You can tap on each list name to expand the list showing all location names in said list.
+#### 5. **Profile**: 
+- A snapshot of your account details, showcasing your email and username.
 
-Profile: The profile page is the last icon and contains the user’s information. It should have your email and username.
+---
+
+### Technical Note:
+Our application's backend infrastructure relies on Firebase, ensuring data integrity, security, and seamless user experience. We also integrate with the Google Places API, providing accurate and expansive location data. If you plan on utilizing these methods, be mindful of the number of markers used and number of queries sent.
