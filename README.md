@@ -1,6 +1,6 @@
 ## Random Itinerary: An Intuitive Random Travel Itinerary Generator
 
-**Random Itinerary** provides a seamless travel planning experience, leveraging the robust Google Places API to curate and present location data tailored to users' preferences. With options to create a spontaneous adventure or meticulously curate your favorite spots, our platform accommodates all sorts of travelers. Here's a comprehensive guide on how to use 
+**Random Itinerary** intends to provide a spontaneous travel planning experience, leveraging the robust Google Places API to curate and present location data tailored to users' preferences. With options to create a spontaneous adventure or meticulously curate your favorite spots, our platform accommodates all sorts of travelers. Here's a comprehensive guide on how it's used.
 
 ---
 
